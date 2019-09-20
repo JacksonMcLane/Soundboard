@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">Soundboard</string>
+    <string name="song_one">Song One</string>
     <string name="a_note">A</string>
     <string name="bb_note">B♭</string>
     <string name="b_note">B</string>
+    <string name="c_note">C</string>
+    <string name="cs_note">C♯</string>
+    <string name="d_note">D</string>
+    <string name="ds_note">D♯</string>
+    <string name="e_note">E</string>
+    <string name="f_note">F</string>
+    <string name="fs_note">F♯</string>
+    <string name="g_note">G</string>
+    <string name="gs_note">G♯</string>
 </resources>

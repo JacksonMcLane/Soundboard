@@ -8,22 +8,24 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-public class SoundBoardActivity extends AppCompatActivity {
+import java.util.HashMap;
+import java.util.Map;
 
-    private Button a_key;
-    private Button b_flat_key;
-    private Button b_key;
+public class SoundBoardActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private Map<Integer, Integer> noteMap;
+    private Button a_key, b_flat_key, b_key, c_key, c_sharp_key, d_key, d_sharp_key;
+    private Button e_key, f_key, f_sharp_key, g_key, g_sharp_key;
+    private Button song1;
     private SoundPool soundPool;
+    private AudioManager audioManager;
+    private float actualVolume;
+    private float maxVolume;
     private int soundID;
     boolean loaded = false;
-    private int anote;
-    private int bnote;
-    private int bbnote;
-    private int cnote;
-    private int csnote;
-    private int dnote;
-    private int dsnote;
+    private int anote, bbnote, bnote, cnote, csnote, dnote, dsnote, enote, fnote, fsnote, gnote, gsnote;
 
     //A full octave will be: A, B♭, B, C, C♯, D, D♯, E, F, F♯, G, G♯
 
@@ -47,57 +49,52 @@ public class SoundBoardActivity extends AppCompatActivity {
     }
 
     private void loadSounds() {
+        audioManager = (AudioManager)getSystemService(AUDIO_SERVICE);
+        actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         anote = soundPool.load(this, R.raw.scalea, 1);
         bnote = soundPool.load(this, R.raw.scaleb, 1);
         bbnote = soundPool.load(this, R.raw.scalebb, 1);
+        cnote = soundPool.load(this, R.raw.scalec, 1);
+        csnote = soundPool.load(this, R.raw.scalecs, 1);
+        dnote = soundPool.load(this, R.raw.scaled, 1);
+        dsnote = soundPool.load(this, R.raw.scaleds, 1);
+        enote = soundPool.load(this, R.raw.scalee, 1);
+        fnote = soundPool.load(this, R.raw.scalef, 1);
+        fsnote = soundPool.load(this, R.raw.scalefs, 1);
+        gnote = soundPool.load(this, R.raw.scaleg, 1);
+        gsnote = soundPool.load(this, R.raw.scalegs, 1);
+        noteMap = new HashMap<>();
+        noteMap.put(a_key.getId(), anote);
+        noteMap.put(b_flat_key.getId(), bbnote);
+        noteMap.put(b_key.getId(), bnote);
+        noteMap.put(c_key.getId(), cnote);
+        noteMap.put(c_sharp_key.getId(), csnote);
+        noteMap.put(d_key.getId(), dnote);
+        noteMap.put(d_sharp_key.getId(), dsnote);
+        noteMap.put(e_key.getId(), enote);
+        noteMap.put(f_key.getId(), fnote);
+        noteMap.put(f_sharp_key.getId(), fsnote);
+        noteMap.put(g_key.getId(), gnote);
+        noteMap.put(g_sharp_key.getId(), gsnote);
+
     }
 
     private void setListeners() {
-        a_key.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                soundID = anote;
-                AudioManager audioManager = (AudioManager)getSystemService(AUDIO_SERVICE);
-                float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                float volume = actualVolume / maxVolume;
-                if (loaded) {
-                    soundPool.play(soundID, volume, volume, 1, 0, 1f);
-                    Log.e("Test", "Played sound");
-                }
-            }
-        });
-
-        b_flat_key.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                soundID = bbnote;
-                AudioManager audioManager = (AudioManager)getSystemService(AUDIO_SERVICE);
-                float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                float volume = actualVolume / maxVolume;
-                if (loaded) {
-                    soundPool.play(soundID, volume, volume, 1, 0, 1f);
-                    Log.e("Test", "Played sound");
-                }
-            }
-        });
-
-        b_key.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                soundID = bnote;
-                AudioManager audioManager = (AudioManager)getSystemService(AUDIO_SERVICE);
-                float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                float volume = actualVolume / maxVolume;
-                if (loaded) {
-                    soundPool.play(soundID, volume, volume, 1, 0, 1f);
-                    Log.e("Test", "Played sound");
-                }
-            }
-        });
+        KeyboardListener keyboardListener = new KeyboardListener();
+        a_key.setOnClickListener(keyboardListener);
+        b_flat_key.setOnClickListener(keyboardListener);
+        b_key.setOnClickListener(keyboardListener);
+        c_key.setOnClickListener(keyboardListener);
+        c_sharp_key.setOnClickListener(keyboardListener);
+        d_key.setOnClickListener(keyboardListener);
+        d_sharp_key.setOnClickListener(keyboardListener);
+        e_key.setOnClickListener(keyboardListener);
+        f_key.setOnClickListener(keyboardListener);
+        f_sharp_key.setOnClickListener(keyboardListener);
+        g_key.setOnClickListener(keyboardListener);
+        g_sharp_key.setOnClickListener(keyboardListener);
+        song1.setOnClickListener(this);
     }
 
 
@@ -106,5 +103,56 @@ public class SoundBoardActivity extends AppCompatActivity {
         a_key = findViewById(R.id.button_main_key_a);
         b_flat_key = findViewById(R.id.button_main_key_b_flat);
         b_key = findViewById(R.id.button_main_key_b);
+        c_key = findViewById(R.id.button_main__key_c);
+        c_sharp_key = findViewById(R.id.button_main_key_c_sharp);
+        d_key = findViewById(R.id.button_main_key_d);
+        d_sharp_key = findViewById(R.id.button_main_key_d_sharp);
+        e_key = findViewById(R.id.button_main_key_e);
+        f_key = findViewById(R.id.button_main_key_f);
+        f_sharp_key = findViewById(R.id.button_main_key_f_sharp);
+        g_key = findViewById(R.id.button_main_key_g);
+        g_sharp_key = findViewById(R.id.button_main_key_g_sharp);
+        //make other buttons
+        song1 = findViewById(R.id.button_main_song1);
+    }
+
+    private void delay(int millisDelay) {
+        try {
+            Thread.sleep(millisDelay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.button_main_song1 : {
+                float volume = actualVolume/maxVolume;
+                if(loaded) {
+                    soundPool.play(anote, volume, volume, 1, 0, 1f);
+                    Toast.makeText(this, "did you do it", Toast.LENGTH_SHORT).show();
+                    delay(500);
+                    soundPool.play(bbnote, volume, volume, 1, 0, 1f);
+                    delay(300);
+                    soundPool.play(bnote, volume, volume, 1, 0, 1f);
+                }
+                break;
+            }
+        }
+    }
+
+    private class KeyboardListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            //read from map of key+value pairs
+              //look up button pressed
+            int songID = noteMap.get(view.getId());
+            float volume = actualVolume/maxVolume;
+            if(songID != 0) {
+                soundPool.play(songID, volume, volume, 1, 0, 1f);
+            }
+        }
     }
 }
