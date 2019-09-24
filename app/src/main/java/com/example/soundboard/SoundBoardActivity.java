@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,8 +14,9 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SoundBoardActivity extends AppCompatActivity implements View.OnClickListener{
+public class SoundBoardActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public static final String TAG = SoundBoardActivity.class.getSimpleName();
     private Map<Integer, Integer> noteMap;
     private Button a_key, b_flat_key, b_key, c_key, c_sharp_key, d_key, d_sharp_key;
     private Button e_key, f_key, f_sharp_key, g_key, g_sharp_key;
@@ -23,8 +25,11 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
     private AudioManager audioManager;
     private float actualVolume;
     private float maxVolume;
-    private int soundID;
+    private Note note;
     boolean loaded = false;
+    boolean isFirstClick = true;
+    long oldMillis, newMillis;
+    int currentClick, oldClick;
     private int anote, bbnote, bnote, cnote, csnote, dnote, dsnote, enote, fnote, fsnote, gnote, gsnote;
 
     //A full octave will be: A, B♭, B, C, C♯, D, D♯, E, F, F♯, G, G♯
@@ -41,6 +46,7 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
                 loaded = true;
             }
         });
+        note = new Note(0,0);
         wireWidgets();
         loadSounds();
         setListeners();
@@ -49,7 +55,7 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void loadSounds() {
-        audioManager = (AudioManager)getSystemService(AUDIO_SERVICE);
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         anote = soundPool.load(this, R.raw.scalea, 1);
@@ -98,7 +104,6 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
     }
 
 
-
     private void wireWidgets() {
         a_key = findViewById(R.id.button_main_key_a);
         b_flat_key = findViewById(R.id.button_main_key_b_flat);
@@ -126,12 +131,11 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()) {
-            case R.id.button_main_song1 : {
-                float volume = actualVolume/maxVolume;
-                if(loaded) {
+        switch (view.getId()) {
+            case R.id.button_main_song1: {
+                float volume = actualVolume / maxVolume;
+                if (loaded) {
                     soundPool.play(anote, volume, volume, 1, 0, 1f);
-                    Toast.makeText(this, "did you do it", Toast.LENGTH_SHORT).show();
                     delay(500);
                     soundPool.play(bbnote, volume, volume, 1, 0, 1f);
                     delay(300);
@@ -147,12 +151,29 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
         @Override
         public void onClick(View view) {
             //read from map of key+value pairs
-              //look up button pressed
-            int songID = noteMap.get(view.getId());
-            float volume = actualVolume/maxVolume;
-            if(songID != 0) {
-                soundPool.play(songID, volume, volume, 1, 0, 1f);
+            //look up button pressed
+            int soundID = noteMap.get(view.getId());
+            //Note.setSoundID(songID);
+            float volume = actualVolume / maxVolume;
+            if (soundID != 0) {
+                if (isFirstClick) {
+                    oldMillis = SystemClock.elapsedRealtime();
+                    currentClick = 0;
+                    oldClick = 0;
+                    isFirstClick = false;
+                }
+                note.setSoundID(soundID);
+                if (currentClick - 1 == oldClick) {
+                    newMillis = SystemClock.elapsedRealtime();
+                    oldClick++;
+                }
+                note.setDelayInMillis((int) (newMillis - oldMillis));
+                oldMillis = newMillis;
+                soundPool.play(soundID, volume, volume, 1, 0, 1f);
+                currentClick++;
+
             }
+            Log.d(TAG, "onClick: " + note.getDelayInMillis());
         }
     }
 }
