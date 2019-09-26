@@ -13,4 +13,7 @@
     <string name="fs_note">F♯</string>
     <string name="g_note">G</string>
     <string name="gs_note">G♯</string>
+    <string name="g_minor_scale">G-Minor Scale</string>
+    <string name="record">Record</string>
+    <string name="stop">Stop</string>
 </resources>
