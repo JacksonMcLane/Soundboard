@@ -6,11 +6,8 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +17,8 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
     public static final String TAG = SoundBoardActivity.class.getSimpleName();
     private Map<Integer, Integer> noteMap;
     private Button a_key, b_flat_key, b_key, c_key, c_sharp_key, d_key, d_sharp_key;
-    private Button e_key, f_key, f_sharp_key, g_key, g_sharp_key, g_minor_scale;
-    private Button customSong, record;
+    private Button e_key, f_key, f_sharp_key, g_key, g_sharp_key, high_a_key, g_minor_scale;
+    private Button customSong, record, reset_song, click_me;
     private SoundPool soundPool;
     private AudioManager audioManager;
     private float actualVolume;
@@ -30,9 +27,11 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
     boolean loaded = false;
     boolean isFirstClick = true;
     boolean isRecording = false;
+    boolean isFirstNote = true;
     long oldMillis, newMillis;
     int currentClick, oldClick;
-    private int anote, bbnote, bnote, cnote, csnote, dnote, dsnote, enote, fnote, fsnote, gnote, gsnote;
+    private int anote, bbnote, bnote, cnote, csnote, dnote, dsnote, enote, fnote, fsnote, gnote, gsnote, higha;
+    private int bestSong;
     private ArrayList<Integer> gMinorNotes;
 
     //A full octave will be: A, B♭, B, C, C♯, D, D♯, E, F, F♯, G, G♯
@@ -74,6 +73,8 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
         fsnote = soundPool.load(this, R.raw.scalefs, 1);
         gnote = soundPool.load(this, R.raw.scaleg, 1);
         gsnote = soundPool.load(this, R.raw.scalegs, 1);
+        higha = soundPool.load(this, R.raw.higha, 1);
+        bestSong = soundPool.load(this, R.raw.bestsong, 1);
         noteMap = new HashMap<>();
         noteMap.put(a_key.getId(), anote);
         noteMap.put(b_flat_key.getId(), bbnote);
@@ -87,6 +88,8 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
         noteMap.put(f_sharp_key.getId(), fsnote);
         noteMap.put(g_key.getId(), gnote);
         noteMap.put(g_sharp_key.getId(), gsnote);
+        noteMap.put(high_a_key.getId(), higha);
+        noteMap.put(click_me.getId(), bestSong);
         gMinorNotes.add(anote);
         gMinorNotes.add(bbnote);
         gMinorNotes.add(cnote);
@@ -94,6 +97,7 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
         gMinorNotes.add(dsnote);
         gMinorNotes.add(fnote);
         gMinorNotes.add(gnote);
+        gMinorNotes.add(higha);
     }
 
     private void setListeners() {
@@ -110,9 +114,12 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
         f_sharp_key.setOnClickListener(keyboardListener);
         g_key.setOnClickListener(keyboardListener);
         g_sharp_key.setOnClickListener(keyboardListener);
+        click_me.setOnClickListener(keyboardListener);
         customSong.setOnClickListener(this);
         g_minor_scale.setOnClickListener(this);
         record.setOnClickListener(this);
+        reset_song.setOnClickListener(this);
+
     }
 
 
@@ -129,10 +136,13 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
         f_sharp_key = findViewById(R.id.button_main_key_f_sharp);
         g_key = findViewById(R.id.button_main_key_g);
         g_sharp_key = findViewById(R.id.button_main_key_g_sharp);
-        //make other buttons
+        high_a_key = findViewById(R.id.button_main_key_high_a);
         customSong = findViewById(R.id.button_main_custom_song);
         g_minor_scale = findViewById(R.id.button_main_scale);
         record = findViewById(R.id.button_main_record_stop);
+        reset_song = findViewById(R.id.button_main_reset_song);
+        click_me = findViewById(R.id.button_main_click_me);
+
     }
 
     private void delay(int millisDelay) {
@@ -147,16 +157,15 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_main_custom_song: {
-                if (loaded && customSong != null) {
+                if (loaded && song != null) {
                     float volume = actualVolume / maxVolume;
                     for(Note note : song.getNotes()) {
-                        soundPool.play(note.getSoundID(), volume, volume, 1, 0, 1f);
-                        note.getDelayInMillis();
+                        if(isFirstNote) {
+                            isFirstNote = false;
+                        }
                         delay(note.getDelayInMillis());
+                        soundPool.play(note.getSoundID(), volume, volume, 1, 0, 1f);
                     }
-                }
-                else {
-                    Toast.makeText(this, "Press Record and make a song!", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
@@ -164,7 +173,11 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
                 float volume = actualVolume / maxVolume;
                 for(int i : gMinorNotes) {
                     soundPool.play(i, volume, volume, 1, 0, 1f);
-                    delay(500);
+                    delay(300);
+                }
+                for(int i = gMinorNotes.size()-1; i >= 0; i--) {
+                    soundPool.play(gMinorNotes.get(i), volume, volume, 1, 0, 1f);
+                    delay(300);
                 }
                 break;
             }
@@ -175,8 +188,13 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
                 }
                 else {
                     isRecording = true;
+                    oldMillis = SystemClock.elapsedRealtime();
                     record.setText(getString(R.string.stop));
                 }
+                break;
+            }
+            case R.id.button_main_reset_song: {
+                song.resetSong();
                 break;
             }
         }
@@ -191,7 +209,7 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
             int soundID = noteMap.get(view.getId());
             //Note.setSoundID(songID);
             float volume = actualVolume / maxVolume;
-            if (soundID != 0) {
+            if (soundID != 0 || soundID != bestSong) {
                 Note note = new Note(0,0);
                 if (isFirstClick) {
                     oldMillis = SystemClock.elapsedRealtime();
@@ -214,7 +232,6 @@ public class SoundBoardActivity extends AppCompatActivity implements View.OnClic
                     song.addNote(note);
                 }
             }
-
         }
     }
 }

@@ -13,15 +13,14 @@ public class Song {
         return notes;
     }
 
-    public void setNotes(ArrayList<Note> notes) {
-        this.notes = notes;
-    }
-
-    public Note getNote(int index) {
-        return notes.get(index);
-    }
-
     public void addNote(Note note) {
         notes.add(note);
     }
+
+    public void resetSong() {
+        for(int i = notes.size() - 1; i >= 0; i--) {
+            notes.remove(i);
+        }
+    }
+
 }

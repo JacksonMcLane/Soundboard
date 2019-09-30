@@ -16,4 +16,6 @@
     <string name="g_minor_scale">G-Minor Scale</string>
     <string name="record">Record</string>
     <string name="stop">Stop</string>
+    <string name="reset_song">Reset Song</string>
+    <string name="click_me">Click Me!</string>
 </resources>
