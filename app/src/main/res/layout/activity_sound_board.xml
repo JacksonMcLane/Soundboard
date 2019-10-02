@@ -83,6 +83,7 @@
         android:text="@string/d_note"
         app:layout_constraintBottom_toTopOf="@+id/button_main_key_d_sharp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_main_key_c_sharp" />
 
@@ -95,6 +96,7 @@
         android:text="@string/ds_note"
         app:layout_constraintBottom_toTopOf="@+id/button_main_key_e"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_main_key_d" />
 
@@ -107,6 +109,7 @@
         android:text="@string/e_note"
         app:layout_constraintBottom_toTopOf="@+id/button_main_key_f"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_main_key_d_sharp" />
 
@@ -148,7 +151,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/gs_note"
-        app:layout_constraintBottom_toTopOf="@+id/button_main_key_high_a"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -209,16 +212,5 @@
         app:layout_constraintStart_toStartOf="@+id/button_main_scale"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.599" />
-
-    <Button
-        android:id="@+id/button_main_key_high_a"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_main_key_g_sharp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
